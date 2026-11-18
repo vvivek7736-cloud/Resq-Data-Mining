@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ResQ – AI Disaster Intelligence</title>
+<style>
+:root{--bg:#070b12;--pn:rgba(18,28,44,.62);--ln:rgba(130,170,230,.2);--tx:#e8eef8;--mu:#8fa1ba;--hi:#ff5a4d;--me:#f5b942;--lo:#4aa8ff;--ok:#3ddc97;--dot:140,180,240;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#eef3fa;--pn:rgba(255,255,255,.75);--ln:rgba(40,70,120,.2);--tx:#0e1a2b;--mu:#4a5b73;--dot:40,80,140}}
+:root[data-theme=dark]{--bg:#070b12;--pn:rgba(18,28,44,.62);--ln:rgba(130,170,230,.2);--tx:#e8eef8;--mu:#8fa1ba;--dot:140,180,240}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Inter,system-ui,-apple-system,Segoe UI,sans-serif;overflow-x:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main,nav{position:relative;z-index:2}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--lo);outline-offset:3px}
+.glass{background:var(--pn);border:1px solid var(--ln);border-radius:18px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.btn{font:inherit;font-weight:600;letter-spacing:.06em;font-size:13px;color:var(--tx);background:linear-gradient(135deg,rgba(74,168,255,.25),rgba(255,90,77,.2));border:1px solid var(--ln);border-radius:12px;padding:12px 20px;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(74,168,255,.35);border-color:var(--lo)}.btn:active{transform:scale(.97)}
+.btn.g{background:transparent}
+nav{position:sticky;top:0;display:flex;align-items:center;gap:20px;padding:10px 22px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--pn);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--ln);z-index:50}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.14em;font-size:14px}
+.brand svg{width:34px;height:34px}
+nav .links{display:flex;gap:18px;margin-left:auto;color:var(--mu);font-size:13px;overflow-x:auto}
+nav .links a:hover{color:var(--tx)}
+.pill{font-size:11px;letter-spacing:.1em;padding:4px 10px;border-radius:99px;border:1px solid var(--ln);white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok);animation:pl 1.6s infinite}
+@keyframes pl{50%{opacity:.35}}
+.hero{min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:40px 6vw;max-width:980px}
+.hero h1{font-size:clamp(34px,6vw,70px);line-height:1.05;margin:16px 0;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(90deg,var(--lo),var(--hi));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mu);font-size:18px;max-width:620px}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+.stat{font-size:12px;color:var(--mu);letter-spacing:.08em;display:flex;gap:18px;flex-wrap:wrap}
+#exp{height:420vh;position:relative}
+#stick{position:sticky;top:0;height:100vh;perspective:1200px;overflow:hidden}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:70px 5vw 40px;will-change:transform,opacity}
+.card{width:min(760px,100%);padding:28px}
+.tag{font-size:11px;letter-spacing:.2em;color:var(--mu)}
+textarea,select,input[type=search]{width:100%;font:inherit;color:var(--tx);background:rgba(0,0,0,.25);border:1px solid var(--ln);border-radius:12px;padding:12px}
+textarea{min-height:110px;resize:vertical;margin:10px 0}
+.meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mu);margin:8px 0 14px;letter-spacing:.08em}
+.meta b{color:var(--tx)}
+.res{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+@media(max-width:640px){.res{grid-template-columns:1fr;justify-items:center}}
+.ring{position:relative;width:170px;height:170px}.ring svg{transform:rotate(-90deg)}
+.ring .n{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;font-weight:700}
+.U{display:inline-block;padding:6px 14px;border-radius:10px;font-weight:700;letter-spacing:.1em;border:1px solid}
+.U.HIGH{color:var(--hi);border-color:var(--hi);background:rgba(255,90,77,.12);animation:gl 1.4s infinite}
+.U.MEDIUM{color:var(--me);border-color:var(--me);background:rgba(245,185,66,.12)}
+.U.LOW{color:var(--lo);border-color:var(--lo);background:rgba(74,168,255,.12)}
+@keyframes gl{50%{box-shadow:0 0 22px rgba(255,90,77,.6)}}
+.chk{list-style:none;padding:0;margin:12px 0 0;color:var(--mu);font-size:13px}.chk li{opacity:0;transform:translateX(-8px);transition:.4s}.chk.on li{opacity:1;transform:none}.chk li:before{content:"✓ ";color:var(--ok)}
+.tw{font-size:17px;line-height:1.9}.w{padding:1px 4px;border-radius:5px;cursor:pointer;transition:.2s}.w.p{background:rgba(255,90,77,.22)}.w.n{background:rgba(74,168,255,.22)}.w.h{outline:2px solid var(--tx)}
+.bar{display:grid;grid-template-columns:90px 1fr 52px;gap:10px;align-items:center;font-size:13px;margin:5px 0;cursor:pointer}
+.bar i{display:block;height:10px;border-radius:6px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}.bar.h{filter:brightness(1.4)}
+.bar .t{height:10px;background:rgba(130,170,230,.1);border-radius:6px}
+.tip{font-size:12px;color:var(--mu);min-height:20px;margin-top:6px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:700px){.cols{grid-template-columns:1fr}}
+.inc{padding:14px;margin:8px 0;border-radius:14px;border:1px solid var(--ln);background:rgba(0,0,0,.18);transition:.2s}.inc:hover{transform:translateX(4px);border-color:var(--lo)}
+.inc b{font-size:15px}.inc small{color:var(--mu);display:block}
+#sd{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:5}
+#sd button{width:12px;height:12px;border-radius:50%;border:1px solid var(--tx);background:none;padding:0;cursor:pointer}#sd button.on{background:var(--lo);border-color:var(--lo)}
+section.sec{padding:70px 6vw;max-width:1200px;margin:auto}
+h2{font-size:clamp(22px,3vw,32px);margin:0 0 18px}
+.grid5{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.k{padding:18px}.k .v{font-size:30px;font-weight:700}
+.feed{max-height:340px;overflow:auto;margin-top:12px}
+.fi{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;padding:10px 12px;border-bottom:1px solid var(--ln);animation:si .5s}
+@keyframes si{from{opacity:0;transform:translateY(-14px)}}
+.ctl{display:flex;gap:10px;flex-wrap:wrap}.ctl>*{flex:1;min-width:140px}
+.mrow{display:grid;grid-template-columns:110px 1fr 54px;gap:10px;align-items:center;font-size:13px;margin:6px 0}
+.mrow i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--lo),var(--ok));width:0;transition:width .8s}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tabs .btn{padding:8px 14px}.tabs .btn.on{border-color:var(--ok);box-shadow:0 0 16px rgba(61,220,151,.3)}
+#intro{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 40%,#10233f,#070b12 70%);color:#e8eef8;display:grid;place-items:end center;padding-bottom:calc(9vh + env(safe-area-inset-bottom,0px));text-align:center;transition:opacity .8s,visibility .8s}
+#intro.off{opacity:0;visibility:hidden}
+#ic{position:absolute;inset:0;width:100%;height:100%}#intro>div:not(.sc){position:relative}#intro svg.lg{width:64px;height:64px;animation:em 1.6s both}
+@keyframes em{from{opacity:0;transform:scale(.6);filter:blur(10px)}}
+#intro h1{letter-spacing:.3em;margin:10px 0 4px;animation:em 1.6s .5s both}
+#intro .s{letter-spacing:.35em;font-size:12px;color:var(--mu);animation:em 1.2s 1.4s both}
+#intro .d{margin-top:16px;font-size:20px;animation:em 1.2s 2.4s both}
+#intro .sc{top:calc(40% - 15vmin);left:calc(50% - 15vmin);position:absolute;width:30vmin;height:30vmin;border-radius:50%;border:2px solid var(--lo);animation:sc 3s 1.2s ease-out infinite;opacity:0}
+@keyframes sc{from{transform:scale(.2);opacity:.8}to{transform:scale(5);opacity:0}}
+#intro .skip{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px}
+.err{color:var(--me);font-size:13px}
+footer{padding:30px;text-align:center;color:var(--mu);font-size:12px}
+@media(max-width:700px){nav .links{display:none}#sd{display:none}#exp{height:480vh}.stage{padding:64px 12px 20px}.card{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4aa8ff"/><stop offset="1" stop-color="#ff7a45"/></linearGradient>
+<symbol id="logo" viewBox="0 0 48 48"><g fill="none" stroke="url(#gg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="19"/><ellipse cx="24" cy="24" rx="8" ry="19" opacity=".5"/><path d="M6 17h36M6 31h36" opacity=".35"/><path d="M3 26h13l4-11 6 20 4-9h15" stroke-width="2.8"/></g><circle cx="39" cy="9" r="4" fill="#ff5a4d"/><circle cx="39" cy="9" r="7" fill="none" stroke="#ff5a4d" stroke-opacity=".4"/></symbol></defs></svg>
+<div id="intro" role="dialog" aria-label="Intro"><canvas id="ic" aria-hidden="true"></canvas><div class="sc"></div><div><svg class="lg"><use href="#logo"/></svg><h1>ResQ</h1><div class="s">AI-POWERED DISASTER INTELLIGENCE</div><div class="d">Detect. Understand. Respond.</div></div><button class="btn g skip" id="skip">SKIP INTRO</button></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<nav><a class="brand" href="#top" aria-label="ResQ home"><svg><use href="#logo"/></svg>ResQ</a>
+<div class="links"><a href="#hero">Live</a><a href="#exp">Analyze</a><a href="#inc">Incidents</a><a href="#ana">Analytics</a></div>
+<span class="pill" title="Simulated data, not a live feed"><span class="dot"></span>DEMO MODE</span></nav>
+<main id="top">
+<header class="hero" id="hero"><span class="tag">NLP · TF-IDF · EXPLAINABLE AI</span>
+<h1>See Disasters Before They Become <span>Chaos.</span></h1>
+<p>AI-powered disaster classification, urgency prioritization and incident intelligence from real-time social signals.</p>
+<div class="row"><button class="btn" onclick="go(0)">ANALYZE A REPORT</button><button class="btn g" onclick="document.getElementById('inc').scrollIntoView({behavior:'smooth'})">VIEW LIVE INCIDENTS</button></div>
+<div class="stat"><span><span class="dot"></span>SYSTEM ONLINE</span><span><span class="dot"></span>AI ENGINE ACTIVE</span><span><span class="dot"></span>REAL-TIME MONITORING</span></div></header>
+
+<div id="exp"><div id="stick">
+<div id="sd" role="tablist" aria-label="Scroll stages"></div>
+<div class="stage" data-i="0"><div class="card glass"><span class="tag">STAGE 1 · INPUT</span><h2>REPORT A DISASTER</h2>
+<label for="tx" class="tag">Describe the disaster situation…</label>
+<textarea id="tx">Huge wildfire spreading near Ridgeview hills, evacuation orders just issued... #wildfire</textarea>
+<div class="meta"><span>MODEL: <b id="mn">SVM</b></span></div>
+<div class="row" style="margin:0"><button class="btn" id="an">ANALYZE REPORT</button><button class="btn g" id="cl">CLEAR</button></div><p class="err" id="er" role="alert"></p></div></div>
+<div class="stage" data-i="1"><div class="card glass"><span class="tag">STAGE 2 · AI RESULT</span>
+<div class="res"><div class="ring"><svg width="170" height="170" viewBox="0 0 170 170"><circle cx="85" cy="85" r="74" fill="none" stroke="rgba(130,170,230,.15)" stroke-width="12"/><circle id="rc" cx="85" cy="85" r="74" fill="none" stroke="var(--hi)" stroke-width="12" stroke-linecap="round" stroke-dasharray="465" stroke-dashoffset="465"/></svg><div class="n" id="cn">0%</div></div>
+<div><div class="tag">PREDICTION</div><h2 id="pr" style="margin:2px 0 8px">DISASTER</h2><div class="tag">URGENCY LEVEL</div><div style="margin:6px 0"><span class="U HIGH" id="ur">HIGH</span> <span id="ua" style="color:var(--mu)">IMMEDIATE ATTENTION</span></div>
+<ul class="chk" id="ck"><li>Classification completed</li><li>Urgency analyzed</li><li>Incident matched</li></ul></div></div></div></div>
+<div class="stage" data-i="2"><div class="card glass"><span class="tag">STAGE 3 · EXPLAINABLE AI</span><h2>WHY DID THE AI SAY <span id="xp">DISASTER</span>?</h2>
+<p class="tw" id="tw"></p><div class="cols"><div id="bp"></div><div id="bn"></div></div><div class="tip" id="tp">Hover a word or bar to see its influence.</div>
+<div class="meta"><span>MODEL <b class="mn">SVM</b></span><span>FEATURES <b>TF-IDF</b></span><span>EXPLAINABILITY <b>Coefficient × TF-IDF</b></span></div></div></div>
+<div class="stage" data-i="3"><div class="card glass" style="width:min(520px,100%);margin-left:auto"><span class="tag">STAGE 4 · INCIDENT INTELLIGENCE</span><h2 id="ch"></h2>
+<label class="tag" for="th">SIMILARITY THRESHOLD (cosine distance) <b id="tv">0.45</b></label><input id="th" type="range" min="0.2" max="0.85" step="0.05" value="0.45" style="width:100%"><div id="il"></div></div></div>
+</div></div>
+
+<section class="sec" id="dash"><h2>Command Center</h2><div class="grid5" id="kp"></div></section>
+<section class="sec" id="inc"><h2>Live Activity Feed</h2><div class="glass" style="padding:18px"><div class="ctl"><input type="search" id="fs" placeholder="Search reports…" aria-label="Search feed"><select id="ff" aria-label="Urgency filter"><option value="">All urgency</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select><select id="fo" aria-label="Sort"><option value="t">Newest first</option><option value="c">Highest confidence</option></select></div><div class="feed" id="fd" aria-live="polite"></div></div></section>
+<section class="sec" id="ana"><h2>Model Comparison</h2><div class="glass" style="padding:20px"><div class="tabs" id="mt"></div><div id="mb"></div><p class="tag" id="mi"></p></div></section>
+<footer>ResQ · demo build with simulated data and a mock classifier. Backend (FastAPI/scikit-learn) plugs into <code>analyze()</code>.</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s),clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),RM=matchMedia('(prefers-reduced-motion:reduce)').matches,MOB=innerWidth<700;
+const LEX={trapped:2.41,flooding:2.13,rescue:1.87,wildfire:2.2,evacuation:1.9,fire:1.8,earthquake:1.9,collapse:1.7,rising:1.22,emergency:.96,asap:.71,orders:.8,water:.52,hills:.4,storm:.6,lol:-.94,love:-.71,movie:-.55,party:-.5,concert:-.45};
+const DEF="Massive flooding in downtown area right now, water rising fast, people trapped on rooftops. Need rescue teams ASAP!";
+let curText=DEF,res={conf:.961,pred:'DISASTER',urg:'HIGH',kw:['wildfire','evacuation','orders']},model='SVM';
+const col={HIGH:'var(--hi)',MEDIUM:'var(--me)',LOW:'var(--lo)'};
+// ---- mock classifier (swap for POST /api/analyze) ----
+function explain(t){const w=(t.toLowerCase().match(/[a-z0-9']+/g)||[]);const c={};w.forEach(x=>{if(LEX[x]!==undefined)c[x]=LEX[x]});return c}
+function analyze(t){const c=explain(t),s=Object.values(c).reduce((a,b)=>a+b,0),p=1/(1+Math.exp(-(s*.9-.4)));const d=p>=.5,conf=d?Math.min(.985,p):Math.min(.985,1-p);
+const kw=Object.entries(c).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,4).map(e=>e[0]);
+const hi=/trapped|evacuat|rescue|collapse/i.test(t);return{conf,pred:d?'DISASTER':'NOT DISASTER',urg:!d?'LOW':(hi||conf>.93?'HIGH':'MEDIUM'),kw}}
+// ---- globe ----
+const cv=$('#bg'),cx=cv.getContext('2d');let W,H,P=0,pts=[];
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}rs();addEventListener('resize',rs);
+const N=MOB?110:260;for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),a=i*2.4;pts.push([r*Math.cos(a),y,r*Math.sin(a)])}
+const ll=(la,lo)=>{la*=Math.PI/180;lo*=Math.PI/180;return[Math.cos(la)*Math.cos(lo),Math.sin(la),Math.cos(la)*Math.sin(lo)]};
+let marks=[];
+function draw(t){const R=Math.min(W,H)*(.3+.12*P),ox=W*(.5+.18*P*(MOB?0:1)),oy=H*.5,a=t*.00012+P*3.2,ca=Math.cos(a),sa=Math.sin(a),rgb=getComputedStyle(document.documentElement).getPropertyValue('--dot').trim()||'140,180,240';
+cx.clearRect(0,0,W,H);const pr=p=>{const x=p[0]*ca-p[2]*sa,z=p[0]*sa+p[2]*ca;return[ox+x*R,oy-p[1]*R,z]};
+pts.forEach(p=>{const q=pr(p);if(q[2]<-.1)return;cx.fillStyle=`rgba(${rgb},${.15+.5*q[2]})`;cx.fillRect(q[0],q[1],1.6,1.6)});
+const vis=[];marks.forEach((m,i)=>{const q=pr(ll(m.la,m.lo));if(q[2]>0){vis.push(q);const k=1+.4*Math.sin(t*.004+i),c=m.u=='HIGH'?'255,90,77':m.u=='MEDIUM'?'245,185,66':'74,168,255';
+cx.fillStyle=`rgba(${c},.9)`;cx.beginPath();cx.arc(q[0],q[1],4+P*3,0,7);cx.fill();cx.strokeStyle=`rgba(${c},${.5-.3*(k-1)})`;cx.beginPath();cx.arc(q[0],q[1],(10+14*(k-1)+8)*(1+P),0,7);cx.stroke()}});
+cx.strokeStyle=`rgba(${rgb},${.12+.25*P})`;for(let i=0;i<vis.length-1;i++){cx.beginPath();cx.moveTo(vis[i][0],vis[i][1]);cx.lineTo(vis[i+1][0],vis[i+1][1]);cx.stroke()}
+if(!RM||!window._f){window._f=1;requestAnimationFrame(draw)}}
+requestAnimationFrame(draw);
+// ---- scroll experience ----
+const st=[...document.querySelectorAll('.stage')],sd=$('#sd');let act=-1;
+st.forEach((_,i)=>{const b=document.createElement('button');b.setAttribute('aria-label','Stage '+(i+1));b.onclick=()=>go(i);sd.append(b)});
+function go(i){const e=$('#exp'),top=e.offsetTop,h=e.offsetHeight-innerHeight;scrollTo({top:top+((i+.5)/4)*h,behavior:RM?'auto':'smooth'})}
+function upd(){const e=$('#exp'),r=e.getBoundingClientRect();P=clamp(-r.top/(e.offsetHeight-innerHeight));
+st.forEach((s,i)=>{let d=P*4-i-.5;if(i==0&&d<0)d=0;if(i==3&&d>0)d=0;const a=Math.abs(d),o=clamp(1.5-a*2);
+s.style.opacity=o;s.style.filter=RM?'':`blur(${clamp(a-.25,0,1)*8}px)`;s.style.transform=RM?'':`translateY(${d*70}px) translateZ(${-a*160}px) rotateX(${-d*14}deg)`;s.style.pointerEvents=o>.5?'auto':'none';s.style.visibility=o<.02?'hidden':'visible'});
+const k=clamp(Math.floor(P*4),0,3);[...sd.children].forEach((b,i)=>b.classList.toggle('on',i==k));if(k!=act){act=k;if(k==1)showRes();if(k==2)showXai();if(k==3)renderInc()}}
+addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);
+// ---- results ----
+function showRes(){const r=res,c=r.conf,ring=$('#rc'),u=$('#ur');$('#pr').textContent=r.pred;u.textContent=r.urg;u.className='U '+r.urg;
+$('#ua').textContent=r.urg=='HIGH'?'IMMEDIATE ATTENTION':r.urg=='MEDIUM'?'MONITOR CLOSELY':'ROUTINE';ring.style.stroke=col[r.urg];
+$('#ck').classList.remove('on');ring.style.transition='none';ring.style.strokeDashoffset=465;
+const t0=performance.now(),dur=RM?1:1500;(function f(n){const k=clamp((n-t0)/dur),e=1-Math.pow(1-k,3);$('#cn').textContent=(c*100*e).toFixed(1)+'%';ring.style.strokeDashoffset=465*(1-c*e);if(k<1)requestAnimationFrame(f)})(t0);
+setTimeout(()=>$('#ck').classList.add('on'),300);}
+function showXai(){const c=explain(curText),ws=Object.entries(c),pos=ws.filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,7),neg=ws.filter(e=>e[1]<0).sort((a,b)=>a[1]-b[1]).slice(0,3);
+$('#xp').textContent=res.pred;
+$('#tw').innerHTML=curText.replace(/[A-Za-z0-9']+/g,w=>{const v=c[w.toLowerCase()];return v===undefined?w:`<span class="w ${v>0?'p':'n'}" data-w="${w.toLowerCase()}">${w}</span>`});
+const mk=(a,cl,id)=>`<div class="tag">${id}</div>`+a.map(([w,v])=>`<div class="bar" data-w="${w}"><span>${w}</span><span class="t"><i style="background:${cl}" data-v="${Math.abs(v)/2.6*100}"></i></span><span>${v>0?'+':''}${v.toFixed(2)}</span></div>`).join('');
+$('#bp').innerHTML=mk(pos,'var(--hi)','PUSHES TOWARD DISASTER');$('#bn').innerHTML=mk(neg,'var(--lo)','PUSHES TOWARD NOT DISASTER');
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('#bp i,#bn i').forEach(i=>i.style.width=i.dataset.v+'%')));
+document.querySelectorAll('#tw .w,.bar').forEach(el=>{const w=el.dataset.w,on=()=>{document.querySelectorAll(`[data-w="${w}"]`).forEach(x=>x.classList.add('h'));const v=c[w];$('#tp').textContent=`"${w}" ${v>0?'pushes toward DISASTER':'pushes toward NOT DISASTER'} by ${Math.abs(v).toFixed(2)} (coef × TF-IDF).`},off=()=>document.querySelectorAll('.h').forEach(x=>x.classList.remove('h'));
+el.onmouseenter=on;el.onmouseleave=off;el.onfocus=on;el.onblur=off;el.tabIndex=0})}
+const HDR={'Content-Type':'application/json'},base=()=>'http://localhost:8000';
+$('#an').onclick=async()=>{const t=$('#tx').value.trim(),er=$('#er');if(!t){er.textContent='Please enter a report to analyze.';return}er.textContent='';
+try{let r=null;try{const c=new AbortController();setTimeout(()=>c.abort(),1500);const q=await fetch(base()+'/api/analyze',{method:'POST',headers:HDR,body:JSON.stringify({text:t}),signal:c.signal});if(q.ok){const j=await q.json();r={conf:j.confidence,pred:j.prediction,urg:j.urgency,kw:j.keywords}}}catch(e){}
+res=r||analyze(t);curText=t;go(1)}catch(e){er.textContent='Analysis is unavailable right now. Please try again.'}};
+$('#cl').onclick=()=>{$('#tx').value='';$('#tx').focus()};
+// ---- incidents / clustering ----
+function clusters(t){const W=[{n:'Ridgeview Wildfire',u:'HIGH',r:14,k:'wildfire, evacuation, hills',la:34,lo:-118},{n:'Storm Power Outage',u:'MEDIUM',r:8,k:'power lines, storm, block',la:41,lo:-87},{n:'Minor Earthquake',u:'LOW',r:6,k:'earthquake, 3.2, shaken',la:36,lo:140}];
+if(t<.3)return[W[0],{n:'Mixed Infrastructure Events',u:'MEDIUM',r:14,k:'storm, shaken, power',la:38,lo:20}];
+if(t<=.6)return W;
+const o=[{...W[0],n:'Ridgeview Wildfire · Evacuation',r:8,k:'evacuation, orders'},{...W[0],n:'Ridgeview Wildfire · Hills',r:6,k:'hills, smoke',la:22,lo:-100},W[1],W[2]];
+if(t>.75)o.splice(2,1,{...W[1],n:'Storm Outage · North',r:5,k:'power lines'},{...W[1],n:'Storm Outage · East',r:3,k:'block, storm',la:48,lo:2});return o}
+function renderInc(){const t=+$('#th').value,c=clusters(t);$('#tv').textContent=t.toFixed(2);$('#ch').textContent=`50 REPORTS → ${c.length} REAL INCIDENT${c.length>1?'S':''}`;marks=c;
+const used=c.reduce((a,b)=>a+b.r,0);$('#il').innerHTML=c.map((x,i)=>`<div class="inc"><b>INCIDENT #${i+1} · ${x.n}</b> <span class="U ${x.u}" style="padding:1px 8px;font-size:11px">${x.u}</span><small>${x.r} reports · ${x.k}</small></div>`).join('')+`<small class="tag">${50-used} unclustered reports (grey)</small>`}
+$('#th').oninput=renderInc;marks=clusters(.45);
+// ---- dashboard ----
+const KP=[['TOTAL REPORTS',1284,0,''],['DISASTERS DETECTED',438,0,''],['HIGH URGENCY',87,0,''],['ACTIVE INCIDENTS',12,0,''],['MODEL ACCURACY',94.6,1,'%']];
+$('#kp').innerHTML=KP.map(k=>`<div class="k glass"><div class="tag">${k[0]}</div><div class="v" data-to="${k[1]}" data-d="${k[2]}" data-s="${k[3]}">0</div></div>`).join('');
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;io.unobserve(e.target);const el=e.target,to=+el.dataset.to,d=+el.dataset.d,t0=performance.now(),du=RM?1:1400;(function f(n){const k=clamp((n-t0)/du);el.textContent=(to*(1-Math.pow(1-k,3))).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})+el.dataset.s;if(k<1)requestAnimationFrame(f)})(t0)}));
+document.querySelectorAll('.v').forEach(v=>io.observe(v));
+let feed=[['🔥','Wildfire detected','Ridgeview Hills','HIGH',96,2],['🌊','Flooding detected','Downtown district','HIGH',93,8],['⚡','Power outage','North district','MEDIUM',88,21],['🌍','Minor earthquake M3.2','East coast','LOW',81,40]];
+const POOL=[['🔥','Smoke reported','Canyon road','MEDIUM',84],['🌊','Flash flood warning','River basin','HIGH',92],['🌪️','Funnel cloud sighted','County line','HIGH',90],['⚡','Transformer fire','Harbor','MEDIUM',79],['🏚️','Building collapse','Old town','HIGH',95]];
+function rf(fresh){const q=$('#fs').value.toLowerCase(),u=$('#ff').value,s=$('#fo').value;let a=feed.filter(f=>(!u||f[3]==u)&&(f[1]+f[2]).toLowerCase().includes(q));a.sort((x,y)=>s=='c'?y[4]-x[4]:x[5]-y[5]);
+$('#fd').innerHTML=a.length?a.map((f,i)=>`<div class="fi" ${fresh&&i==0&&s=='t'?'':'style="animation:none"'}><span>${f[0]}</span><span><b>${f[1]}</b><br><small style="color:var(--mu)">${f[2]} · ${f[4]}% confidence · ${f[5]} sec ago</small></span><span class="U ${f[3]}" style="align-self:center;font-size:11px">${f[3]}</span></div>`).join(''):'<p class="err" style="padding:16px">No incidents found for these filters.</p>'}
+['#fs','#ff','#fo'].forEach(s=>$(s).oninput=()=>rf());rf();
+setInterval(()=>{feed.forEach(f=>f[5]+=6);const p=POOL[Math.floor(Math.random()*POOL.length)];feed.unshift([...p,1]);if(feed.length>30)feed.pop();rf(true);},6000);
+const MD={'Naive Bayes':[91.2,90.1,89.4,89.7,98],'Logistic Regression':[93.8,93.0,92.5,92.7,95],'SVM':[94.6,94.1,93.2,93.6,88]},ML=['Accuracy','Precision','Recall','F1','Speed'];
+function rm(){$('#mt').innerHTML=Object.keys(MD).map(m=>`<button class="btn ${m==model?'on':''}" aria-pressed="${m==model}">${m}</button>`).join('');
+$('#mb').innerHTML=MD[model].map((v,i)=>`<div class="mrow"><span>${ML[i]}</span><span><i data-v="${v}"></i></span><span>${v}${i<4?'%':''}</span></div>`).join('');
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.mrow i').forEach(i=>i.style.width=i.dataset.v+'%')));
+document.querySelectorAll('#mt button').forEach(b=>b.onclick=()=>{model=b.textContent;$('#mn').textContent=model;document.querySelectorAll('.mn').forEach(x=>x.textContent=model);rm()});
+$('#mi').textContent='Illustrative figures. All three are linear models on the same TF-IDF features; no retraining needed for the new modules.'}rm();
+(function(){const c=$('#ic'),g=c.getContext('2d');if(RM)return;let w,h;const rz=()=>{w=c.width=innerWidth;h=c.height=innerHeight};rz();addEventListener('resize',rz);
+const n=MOB?260:520,T=[],S=[];for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y),a=i*2.4;T.push([r*Math.cos(a),y,r*Math.sin(a)]);const u=Math.random()*6.28,v=Math.random()*2-1,q=Math.sqrt(1-v*v),m=2+Math.random()*3;S.push([q*Math.cos(u)*m,v*m,q*Math.sin(u)*m])}
+const M=[[34,-118],[41,-87],[36,140],[51,0],[-23,-46],[28,77],[-33,151],[9,8]].map(([la,lo])=>{la*=Math.PI/180;lo*=Math.PI/180;return[Math.cos(la)*Math.cos(lo),Math.sin(la),Math.cos(la)*Math.sin(lo)]});
+const t0=performance.now();
+(function f(now){if($('#intro').classList.contains('off'))return;const t=now-t0,k=clamp((t-200)/2400),e=1-Math.pow(1-k,3),R=Math.min(w,h)*(MOB?.3:.27),cx=w/2,cy=h*.4,a=t*.0004+(1-e)*3,ca=Math.cos(a),sa=Math.sin(a);
+g.clearRect(0,0,w,h);
+const gr=g.createRadialGradient(cx,cy,R*.2,cx,cy,R*1.8);gr.addColorStop(0,`rgba(74,168,255,${.18*e})`);gr.addColorStop(1,'rgba(74,168,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);
+const P=p=>{const x=p[0]*ca-p[2]*sa,z=p[0]*sa+p[2]*ca,s=1/(1-z*.18);return[cx+x*R*s,cy-p[1]*R*s,z]};
+if(k>.5){g.strokeStyle=`rgba(120,180,255,${.22*(k-.5)*2})`;g.lineWidth=1;for(let l=-60;l<=60;l+=30){const y=Math.sin(l*Math.PI/180),r=Math.cos(l*Math.PI/180);g.beginPath();for(let j=0;j<=48;j++){const b=j/48*6.283,q=P([r*Math.cos(b),y,r*Math.sin(b)]);j?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}g.stroke()}}
+for(let i=0;i<n;i++){const p=T[i],s=S[i],m=[s[0]+(p[0]-s[0])*e,s[1]+(p[1]-s[1])*e,s[2]+(p[2]-s[2])*e],q=P(m);if(q[2]<-.15&&k>.8)continue;g.fillStyle=`rgba(150,200,255,${(.25+.6*clamp(q[2]+.5))*(.4+.6*e)})`;g.fillRect(q[0],q[1],1.4+q[2]*.9,1.4+q[2]*.9)}
+if(t>1800){const m=clamp((t-1800)/900),qs=M.map(P);g.lineWidth=1.2;for(let i=0;i<M.length;i++){const A=qs[i],B=qs[(i+1)%M.length];if(A[2]<0||B[2]<0)continue;g.strokeStyle=`rgba(255,140,90,${.5*m})`;g.beginPath();g.moveTo(A[0],A[1]);g.quadraticCurveTo((A[0]+B[0])/2,(A[1]+B[1])/2-R*.25*m,B[0],B[1]);g.stroke()}
+qs.forEach((q,i)=>{if(q[2]<0)return;const pu=(t*.003+i)%3;g.fillStyle=i%3?'rgba(245,185,66,.95)':'rgba(255,90,77,.95)';g.beginPath();g.arc(q[0],q[1],3.5*m,0,7);g.fill();g.strokeStyle=`rgba(255,120,90,${.5-pu/6})`;g.beginPath();g.arc(q[0],q[1],4+pu*7*m,0,7);g.stroke()})}
+requestAnimationFrame(f)})(t0)})();
+// ---- intro ----
+function endIntro(){$('#intro').classList.add('off');document.body.style.overflow=''}
+document.body.style.overflow='hidden';$('#skip').onclick=endIntro;setTimeout(endIntro,RM?200:4600);$('#skip').focus();upd();
+</script></body></html>
